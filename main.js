@@ -35,6 +35,7 @@ var GameModule;
             this.paddle.anchor.setTo(0.5, 0.5);
             // Le decimos a Phaser que el usuario usará el motor de físicas Arcade
             game.physics.arcade.enable(this.paddle);
+            this.paddle.body.immovable = true;
             //Posicio de la pelota
             this.ball = this.game.add.sprite(game.world.centerX, game.world.height - 250, 'ball');
             // Cambiamos el "anchor" del jugador
@@ -87,6 +88,7 @@ var GameModule;
         };
         mainState.prototype.update = function () {
             _super.prototype.update.call(this);
+            game.physics.arcade.collide(this.ball, this.paddle);
             this.movePlayer();
         };
         return mainState;

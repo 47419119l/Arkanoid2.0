@@ -49,6 +49,7 @@ module GameModule
 
             // Le decimos a Phaser que el usuario usará el motor de físicas Arcade
             game.physics.arcade.enable(this.paddle);
+            this.paddle.body.immovable = true;
 
             //Posicio de la pelota
             this.ball = this.game.add.sprite(
@@ -120,6 +121,7 @@ module GameModule
 
         update():void {
             super.update();
+            game.physics.arcade.collide(this.ball, this.paddle);
             this.movePlayer();
         }
 
