@@ -37,12 +37,15 @@ var GameModule;
             game.physics.arcade.enable(this.paddle);
             this.paddle.body.immovable = true;
             //Posicio de la pelota
-            this.ball = this.game.add.sprite(game.world.centerX, game.world.height - 250, 'ball');
+            this.ball = this.game.add.sprite(game.world.centerX, game.world.height - 85, 'ball');
             // Cambiamos el "anchor" del jugador
             this.ball.anchor.setTo(0.5, 0.5);
             // Le decimos a Phaser que el usuario usará el motor de físicas Arcade
             game.physics.arcade.enable(this.ball);
-            this.ball.body.gravity.y = 580;
+            this.ball.body.velocity.x = 500;
+            this.ball.body.velocity.y = 500;
+            //this.ball.body.gravity.y = 580;
+            //Ball rebota.
             this.ball.body.bounce.set(1);
             this.elements = this.add.group();
             this.elements.enableBody = true;

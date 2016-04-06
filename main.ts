@@ -54,14 +54,17 @@ module GameModule
             //Posicio de la pelota
             this.ball = this.game.add.sprite(
                 game.world.centerX,
-                game.world.height - 250,
+                game.world.height - 85,
                 'ball'
             )
             // Cambiamos el "anchor" del jugador
             this.ball.anchor.setTo(0.5, 0.5);
             // Le decimos a Phaser que el usuario usará el motor de físicas Arcade
             game.physics.arcade.enable(this.ball);
-            this.ball.body.gravity.y = 580;
+            this.ball.body.velocity.x=500;
+            this.ball.body.velocity.y=500;
+            //this.ball.body.gravity.y = 580;
+            //Ball rebota.
             this.ball.body.bounce.set(1);
 
 
@@ -69,9 +72,9 @@ module GameModule
             this.elements = this.add.group();
             this.elements.enableBody = true;
 
-            for (var line = 0; line < 5; line++) //CREAMOS 5 LINEAS
+            for (var line = 0; line < 5; line++) 
             {
-                for (var column = 0; column < 9; column++) //Y 10 COLUMNAS
+                for (var column = 0; column < 9; column++)
                 {
                     var num = Math.floor((Math.random() *3) + 1);
                     var COLOUR;
