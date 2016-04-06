@@ -61,7 +61,8 @@ module GameModule
             this.ball.anchor.setTo(0.5, 0.5);
             // Le decimos a Phaser que el usuario usará el motor de físicas Arcade
             game.physics.arcade.enable(this.ball);
-            this.ball.body.gravity.y = 500;
+            this.ball.body.gravity.y = 580;
+            this.ball.body.bounce.set(1);
 
 
 
