@@ -34,7 +34,7 @@ module GameModule
             super.create();
             this.game.physics.arcade.checkCollision.down = false;
             //Creo el color del background.
-            game.stage.backgroundColor = "#ccc";
+            game.stage.backgroundColor = "#000";
 
 
             this.paddle = this.game.add.sprite(
@@ -48,6 +48,8 @@ module GameModule
             // Le decimos a Phaser que el usuario usará el motor de físicas Arcade
             game.physics.arcade.enable(this.paddle);
             this.paddle.body.immovable = true;
+            //Per a que el paddle no surti del mon
+            this.paddle.body.collideWorldBounds = true;
 
             //Posicio de la pelota
             this.ball = this.game.add.sprite(
@@ -61,9 +63,11 @@ module GameModule
             game.physics.arcade.enable(this.ball);
             this.ball.body.velocity.x=500;
             this.ball.body.velocity.y=500;
-            //this.ball.body.gravity.y = 580;
+
             //Ball rebota.
             this.ball.body.bounce.set(1);
+            //parets rebota
+            this.ball.body.collideWorldBounds = true;
 
             //diamants.
             this.elements = this.add.group();
@@ -100,12 +104,12 @@ module GameModule
             // Si pulsamos el cursor izquierdo
             if (this.cursor.left.isDown) {
                 // Movemos al jugador a la izquierda
-                this.paddle.body.velocity.x = -200;
+                this.paddle.body.velocity.x = -600;
             }
             // Si pulsamos el cursor derecho
             else if (this.cursor.right.isDown) {
                 // Movemos al jugador a la derecha
-                this.paddle.body.velocity.x = 200;
+                this.paddle.body.velocity.x = 600;
             }
             // Si no se pulsan ni el cursor izquierdo ni el derecho
             else {

@@ -23,19 +23,22 @@ var GameModule;
             game.load.image('elementYellow', 'assets/element_yellow_diamond.png');
             game.load.image('elementRed', 'assets/element_red_diamond.png');
             game.load.image('elementPurple', 'assets/element_purple_diamond.png');
+            //Inicio la física
+            game.physics.startSystem(Phaser.Physics.ARCADE);
         };
         mainState.prototype.create = function () {
             _super.prototype.create.call(this);
+            this.game.physics.arcade.checkCollision.down = false;
             //Creo el color del background.
-            game.stage.backgroundColor = "#ccc";
-            //Inicio la física
-            game.physics.startSystem(Phaser.Physics.ARCADE);
+            game.stage.backgroundColor = "#000";
             this.paddle = this.game.add.sprite(game.world.centerX, game.world.height - 50, 'paddle');
             // Cambiamos el "anchor" del jugador
             this.paddle.anchor.setTo(0.5, 0.5);
             // Le decimos a Phaser que el usuario usará el motor de físicas Arcade
             game.physics.arcade.enable(this.paddle);
             this.paddle.body.immovable = true;
+            //Per a que el paddle no surti del mon
+            this.paddle.body.collideWorldBounds = true;
             //Posicio de la pelota
             this.ball = this.game.add.sprite(game.world.centerX, game.world.height - 85, 'ball');
             // Cambiamos el "anchor" del jugador
@@ -44,26 +47,28 @@ var GameModule;
             game.physics.arcade.enable(this.ball);
             this.ball.body.velocity.x = 500;
             this.ball.body.velocity.y = 500;
-            //this.ball.body.gravity.y = 580;
             //Ball rebota.
             this.ball.body.bounce.set(1);
+            //parets rebota
+            this.ball.body.collideWorldBounds = true;
+            //diamants.
             this.elements = this.add.group();
             this.elements.enableBody = true;
-            for (var line = 0; line < 5; line++) {
-                for (var column = 0; column < 9; column++) {
+            this.elements.physicsBodyType = Phaser.Physics.ARCADE;
+            for (var x = 0; x < 5; x++) {
+                for (var y = 0; y < 9; y++) {
                     var num = Math.floor((Math.random() * 3) + 1);
-                    var COLOUR;
+                    var color;
                     if (num == 1) {
-                        COLOUR = 'elementYellow';
+                        color = 'elementYellow';
                     }
                     else if (num == 2) {
-                        COLOUR = 'elementRed';
+                        color = 'elementRed';
                     }
                     else {
-                        COLOUR = 'elementPurple';
+                        color = 'elementPurple';
                     }
-                    var newElement = new Diamante(this.game, this.ESPAIH * column, line * this.ESPAIV + 50, COLOUR, 0);
-                    this.add.existing(newElement);
+                    var newElement = new Diamante(this.game, y * this.ESPAIH, x * this.ESPAIV + 50, color);
                     this.elements.add(newElement);
                 }
             }
@@ -74,11 +79,11 @@ var GameModule;
             // Si pulsamos el cursor izquierdo
             if (this.cursor.left.isDown) {
                 // Movemos al jugador a la izquierda
-                this.paddle.body.velocity.x = -200;
+                this.paddle.body.velocity.x = -600;
             }
             else if (this.cursor.right.isDown) {
                 // Movemos al jugador a la derecha
-                this.paddle.body.velocity.x = 200;
+                this.paddle.body.velocity.x = 600;
             }
             else {
                 // el jugador se para
@@ -93,7 +98,11 @@ var GameModule;
         mainState.prototype.update = function () {
             _super.prototype.update.call(this);
             game.physics.arcade.collide(this.ball, this.paddle);
+            game.physics.arcade.collide(this.ball, this.elements, this.diamantCol, null, this);
             this.movePlayer();
+        };
+        mainState.prototype.diamantCol = function (ball, diamante) {
+            diamante.kill();
         };
         return mainState;
     })(Phaser.State);
