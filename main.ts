@@ -29,14 +29,7 @@ module GameModule
             //Inicio la física
             game.physics.startSystem(Phaser.Physics.ARCADE);
         }
-
-        create():void {
-            super.create();
-            this.game.physics.arcade.checkCollision.down = false;
-            //Creo el color del background.
-            game.stage.backgroundColor = "#000";
-
-
+        configPaddle():void{
             this.paddle = this.game.add.sprite(
                 game.world.centerX,
                 game.world.height - 50,
@@ -50,6 +43,8 @@ module GameModule
             this.paddle.body.immovable = true;
             //Per a que el paddle no surti del mon
             this.paddle.body.collideWorldBounds = true;
+        }
+        configBall():void{
 
             //Posicio de la pelota
             this.ball = this.game.add.sprite(
@@ -68,32 +63,44 @@ module GameModule
             this.ball.body.bounce.set(1);
             //parets rebota
             this.ball.body.collideWorldBounds = true;
+            //Anem mirant els event de la bola
+            this.ball.events.onOutOfBounds.add(this.killBall, this);
 
+        }
+        configDiamantes():void{
             //diamants.
             this.elements = this.add.group();
             this.elements.enableBody = true;
             this.elements.physicsBodyType = Phaser.Physics.ARCADE;
-            for (var x = 0; x < 5; x++)
-            {
-                for (var y = 0; y < 9; y++)
-                {
-                    var num = Math.floor((Math.random() *3) + 1);
+            for (var x = 0; x < 5; x++) {
+                for (var y = 0; y < 9; y++) {
+                    var num = Math.floor((Math.random() * 3) + 1);
                     var color;
-                    if (num==1) {
+                    if (num == 1) {
                         color = 'elementYellow'
-                    } else if(num==2){
-                       color='elementRed'
+                    } else if (num == 2) {
+                        color = 'elementRed'
                     } else {
                         color = 'elementPurple'
                     }
-                    var newElement = new Diamante(this.game, y*this.ESPAIH , x * this.ESPAIV + 50, color);
+                    var newElement = new Diamante(this.game, y * this.ESPAIH, x * this.ESPAIV + 50, color);
                     this.elements.add(newElement);
                 }
             }
+        }
+        configWorld():void{
+            this.game.physics.arcade.checkCollision.down = false;
+            //Creo el color del background.
+            game.stage.backgroundColor = "#000";
 
+        }
+        create():void {
+            super.create();
 
-
-
+            configWorld();
+            configPaddle();
+            configBall();
+            configDiamantes();
 
         // Cogemos los cursores para gestionar la entrada
            this.cursor = game.input.keyboard.createCursorKeys();
@@ -121,18 +128,29 @@ module GameModule
                 // el jugador se mueve hachi arriba (salto)
                 this.paddle.body.velocity.y = -320;
             }
+
+
         }
 
         update():void {
             super.update();
+            if (!this.ball.inWorld) {
+                game.state.start('main');
+            }
             game.physics.arcade.collide(this.ball, this.paddle);
             game.physics.arcade.collide(this.ball, this.elements, this.diamantCol, null, this)
             this.movePlayer();
+
         }
+        private muerte() {
+            game.state.start('main');
+        };
 
         private diamantCol(ball:Phaser.Sprite, diamante:Diamante) {
             diamante.kill();
         }
+
+
 
     }
 
