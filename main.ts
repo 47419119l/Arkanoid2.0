@@ -5,14 +5,19 @@ module GameModule
     var game: Phaser.Game;
 
     class mainState extends Phaser.State {
-
-
+        puntuacioContador:Phaser.Text;
+        videsContador:Phaser.Text;
         cursor: Phaser.CursorKeys;
         paddle:Phaser.Sprite;
         ball:Phaser.Sprite;
         elements:Phaser.Group;
+
+
         ESPAIH = 106;
         ESPAIV = 70;
+        VIDES = 3;
+        PUNTUACIO=0;
+        DIAMANTS =45;
 
         // private paddle:Phaser.Sprite;
 
@@ -29,7 +34,27 @@ module GameModule
             //Inicio la física
             game.physics.startSystem(Phaser.Physics.ARCADE);
         }
-        configPaddle():void{
+
+        reset(){
+            this.VIDES = 3;
+            this.PUNTUACIO=0;
+            this.game.state.restart();
+        }
+        ballMuerte():void{
+            this.ball.kill();
+            this.VIDES=this.VIDES-1;
+            if(this.VIDES==0){
+                this.videsContador.setText("Vides: " + this.VIDES);
+                this.input.onTap.addOnce(this.reset, this);
+            }else{
+                this.videsContador.setText("Vides: " + this.VIDES);
+                this.input.onTap.addOnce( this.configBall, this);
+            }
+
+
+
+        }
+        configPaddle(){
             this.paddle = this.game.add.sprite(
                 game.world.centerX,
                 game.world.height - 50,
@@ -43,9 +68,10 @@ module GameModule
             this.paddle.body.immovable = true;
             //Per a que el paddle no surti del mon
             this.paddle.body.collideWorldBounds = true;
-        }
-        configBall():void{
 
+
+        }
+        configBall(){
             //Posicio de la pelota
             this.ball = this.game.add.sprite(
                 game.world.centerX,
@@ -58,16 +84,19 @@ module GameModule
             game.physics.arcade.enable(this.ball);
             this.ball.body.velocity.x=500;
             this.ball.body.velocity.y=500;
-
             //Ball rebota.
             this.ball.body.bounce.set(1);
             //parets rebota
             this.ball.body.collideWorldBounds = true;
+            // Quan surt de la pantalla.
+            this.ball.checkWorldBounds = true;
+
+
             //Anem mirant els event de la bola
-            this.ball.events.onOutOfBounds.add(this.killBall, this);
+            this.ball.events.onOutOfBounds.add(this.ballMuerte, this);
 
         }
-        configDiamantes():void{
+        configGrourpDiamants(){
             //diamants.
             this.elements = this.add.group();
             this.elements.enableBody = true;
@@ -88,25 +117,31 @@ module GameModule
                 }
             }
         }
-        configWorld():void{
-            this.game.physics.arcade.checkCollision.down = false;
-            //Creo el color del background.
-            game.stage.backgroundColor = "#000";
 
-        }
         create():void {
             super.create();
 
-            configWorld();
-            configPaddle();
-            configBall();
-            configDiamantes();
+            this.game.physics.arcade.checkCollision.down = false;
+            //Creo el color del background.
+            game.stage.backgroundColor = "#000";
+            this.configPaddle();
+            this.configBall();
+            this.configGrourpDiamants();
 
-        // Cogemos los cursores para gestionar la entrada
+            //Contador vides
+            this.videsContador = this.game.add.text(20,35," Vides : " +this.VIDES, { font: "25px Arial", fill: "#fff", align: "center"});
+            //Contador de punts
+            this.puntuacioContador = this.game.add.text(450,35," Puntuació : " +this.PUNTUACIO, { font: "25px Arial", fill: "#fff", align: "center"});
+
+
+            // Cogemos los cursores para gestionar la entrada
            this.cursor = game.input.keyboard.createCursorKeys();
 
         }
 
+        /**
+         * Metodes per el update
+         */
         movePlayer():void {
             // Si pulsamos el cursor izquierdo
             if (this.cursor.left.isDown) {
@@ -131,32 +166,32 @@ module GameModule
 
 
         }
+        private diamantCol(ball:Phaser.Sprite, diamante:Diamante) {
+            diamante.kill();
+            this.DIAMANTS = this.DIAMANTS-1;
+            this.PUNTUACIO = this.PUNTUACIO+10;
+            this.puntuacioContador.setText("Puntuació :"+this.PUNTUACIO)
+           //Si els diamants es queden a 0 posi mes diamants
+            if(this.DIAMANTS==0){
+                this.configGrourpDiamants();
+            }
 
+        }
         update():void {
             super.update();
-            if (!this.ball.inWorld) {
-                game.state.start('main');
-            }
+            //Perque el paddle funcioni amb el ratolí
+            this.paddle.position.x = this.game.input.x;
             game.physics.arcade.collide(this.ball, this.paddle);
             game.physics.arcade.collide(this.ball, this.elements, this.diamantCol, null, this)
-            this.movePlayer();
+           // this.movePlayer();
 
         }
         private muerte() {
             game.state.start('main');
         };
-
-        private diamantCol(ball:Phaser.Sprite, diamante:Diamante) {
-            diamante.kill();
-        }
-
-
-
     }
 
     export class SimpleGame {
-
-
         constructor() {
             game = new Phaser.Game(900, 700, Phaser.AUTO, 'gameDiv');
 
@@ -164,7 +199,6 @@ module GameModule
             game.state.start('main');
 
         }
-
     }
     class Diamante extends Phaser.Sprite {
         constructor(game:Phaser.Game, x:number, y:number, key:string|Phaser.RenderTexture|Phaser.BitmapData|PIXI.Texture, frame:string|number) {

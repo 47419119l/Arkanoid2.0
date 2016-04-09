@@ -13,6 +13,9 @@ var GameModule;
             _super.apply(this, arguments);
             this.ESPAIH = 106;
             this.ESPAIV = 70;
+            this.VIDES = 3;
+            this.PUNTUACIO = 0;
+            this.DIAMANTS = 45;
         }
         // private paddle:Phaser.Sprite;
         mainState.prototype.preload = function () {
@@ -26,11 +29,24 @@ var GameModule;
             //Inicio la física
             game.physics.startSystem(Phaser.Physics.ARCADE);
         };
-        mainState.prototype.create = function () {
-            _super.prototype.create.call(this);
-            this.game.physics.arcade.checkCollision.down = false;
-            //Creo el color del background.
-            game.stage.backgroundColor = "#000";
+        mainState.prototype.reset = function () {
+            this.VIDES = 3;
+            this.PUNTUACIO = 0;
+            this.game.state.restart();
+        };
+        mainState.prototype.ballMuerte = function () {
+            this.ball.kill();
+            this.VIDES = this.VIDES - 1;
+            if (this.VIDES == 0) {
+                this.videsContador.setText("Vides: " + this.VIDES);
+                this.input.onTap.addOnce(this.reset, this);
+            }
+            else {
+                this.videsContador.setText("Vides: " + this.VIDES);
+                this.input.onTap.addOnce(this.configBall, this);
+            }
+        };
+        mainState.prototype.configPaddle = function () {
             this.paddle = this.game.add.sprite(game.world.centerX, game.world.height - 50, 'paddle');
             // Cambiamos el "anchor" del jugador
             this.paddle.anchor.setTo(0.5, 0.5);
@@ -39,6 +55,8 @@ var GameModule;
             this.paddle.body.immovable = true;
             //Per a que el paddle no surti del mon
             this.paddle.body.collideWorldBounds = true;
+        };
+        mainState.prototype.configBall = function () {
             //Posicio de la pelota
             this.ball = this.game.add.sprite(game.world.centerX, game.world.height - 85, 'ball');
             // Cambiamos el "anchor" del jugador
@@ -51,6 +69,12 @@ var GameModule;
             this.ball.body.bounce.set(1);
             //parets rebota
             this.ball.body.collideWorldBounds = true;
+            // Quan surt de la pantalla.
+            this.ball.checkWorldBounds = true;
+            //Anem mirant els event de la bola
+            this.ball.events.onOutOfBounds.add(this.ballMuerte, this);
+        };
+        mainState.prototype.configGrourpDiamants = function () {
             //diamants.
             this.elements = this.add.group();
             this.elements.enableBody = true;
@@ -72,9 +96,25 @@ var GameModule;
                     this.elements.add(newElement);
                 }
             }
+        };
+        mainState.prototype.create = function () {
+            _super.prototype.create.call(this);
+            this.game.physics.arcade.checkCollision.down = false;
+            //Creo el color del background.
+            game.stage.backgroundColor = "#000";
+            this.configPaddle();
+            this.configBall();
+            this.configGrourpDiamants();
+            //Contador vides
+            this.videsContador = this.game.add.text(20, 35, " Vides : " + this.VIDES, { font: "25px Arial", fill: "#fff", align: "center" });
+            //Contador de punts
+            this.puntuacioContador = this.game.add.text(450, 35, " Puntuació : " + this.PUNTUACIO, { font: "25px Arial", fill: "#fff", align: "center" });
             // Cogemos los cursores para gestionar la entrada
             this.cursor = game.input.keyboard.createCursorKeys();
         };
+        /**
+         * Metodes per el update
+         */
         mainState.prototype.movePlayer = function () {
             // Si pulsamos el cursor izquierdo
             if (this.cursor.left.isDown) {
@@ -95,15 +135,28 @@ var GameModule;
                 this.paddle.body.velocity.y = -320;
             }
         };
-        mainState.prototype.update = function () {
-            _super.prototype.update.call(this);
-            game.physics.arcade.collide(this.ball, this.paddle);
-            game.physics.arcade.collide(this.ball, this.elements, this.diamantCol, null, this);
-            this.movePlayer();
-        };
         mainState.prototype.diamantCol = function (ball, diamante) {
             diamante.kill();
+            this.DIAMANTS = this.DIAMANTS - 1;
+            this.PUNTUACIO = this.PUNTUACIO + 10;
+            this.puntuacioContador.setText("Puntuació :" + this.PUNTUACIO);
+            //Si els diamants es queden a 0 posi mes diamants
+            if (this.DIAMANTS == 0) {
+                this.configGrourpDiamants();
+            }
         };
+        mainState.prototype.update = function () {
+            _super.prototype.update.call(this);
+            //Perque el paddle funcioni amb el ratolí
+            this.paddle.position.x = this.game.input.x;
+            game.physics.arcade.collide(this.ball, this.paddle);
+            game.physics.arcade.collide(this.ball, this.elements, this.diamantCol, null, this);
+            // this.movePlayer();
+        };
+        mainState.prototype.muerte = function () {
+            game.state.start('main');
+        };
+        ;
         return mainState;
     })(Phaser.State);
     var SimpleGame = (function () {
