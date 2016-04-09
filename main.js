@@ -13,12 +13,11 @@ var GameModule;
             _super.apply(this, arguments);
             this.ESPAIH = 106;
             this.ESPAIV = 70;
-            this.VIDES = 3;
+            this.VIDES = 4;
             this.PUNTUACIO = 0;
             this.DIAMANTS = 16;
             this.ROUND = 1;
         }
-        // private paddle:Phaser.Sprite;
         mainState.prototype.preload = function () {
             _super.prototype.preload.call(this);
             //Precargo les imatges
@@ -34,6 +33,7 @@ var GameModule;
             this.VIDES = 3;
             this.DIAMANTS = 16;
             this.PUNTUACIO = 0;
+            this.ROUND = 1;
             this.game.state.restart();
         };
         mainState.prototype.ballMuerte = function () {
@@ -96,6 +96,18 @@ var GameModule;
                             this.elements.add(newElement);
                         }
                     }
+                    else if (this.ROUND == 2) {
+                        if (x == 1 && y == 2 || x == 1 && y == 5 ||
+                            x == 2 && y == 2 || x == 2 && y == 5 ||
+                            x == 3 && y == 2 || x == 3 && y == 5 ||
+                            x == 4 && y == 1 || x == 4 && y == 6 ||
+                            x == 5 && y == 2 || x == 5 && y == 5 ||
+                            x == 6 && y == 3 || x == 6 && y == 4) {
+                            color = 'elementPurple';
+                            var newElement = new Diamante(this.game, y * this.ESPAIH, x * this.ESPAIV + 50, color);
+                            this.elements.add(newElement);
+                        }
+                    }
                     else {
                         if (x == 0 && y == 0 || x == 0 && y == 1 || x == 0 && y == 7 || x == 0 && y == 8 ||
                             x == 1 && y == 0 || x == 1 && y == 8 ||
@@ -106,7 +118,7 @@ var GameModule;
                             x == 8 && y == 0 || x == 8 && y == 1 || x == 8 && y == 2 || x == 8 && y == 6 || x == 8 && y == 7 || x == 8 && y == 8) {
                         }
                         else {
-                            color = 'elementYellow';
+                            color = 'elementRed';
                             var newElement = new Diamante(this.game, y * this.ESPAIH, x * this.ESPAIV + 50, color);
                             this.elements.add(newElement);
                         }
@@ -123,9 +135,9 @@ var GameModule;
             this.configBall();
             this.configGrourpDiamants();
             //Contador vides
-            this.videsContador = this.game.add.text(20, 10, " Vides : " + this.VIDES, { font: "25px Arial", fill: "#fff", align: "center" });
+            this.videsContador = this.game.add.text(20, 10, " Vides : " + this.VIDES, { font: "25px Fixedsys", fill: "#fff", align: "center" });
             //Contador de punts
-            this.puntuacioContador = this.game.add.text(500, 10, " Puntuació : " + this.PUNTUACIO, { font: "25px Arial", fill: "#fff", align: "center" });
+            this.puntuacioContador = this.game.add.text(500, 10, " Puntuació : " + this.PUNTUACIO, { font: "25px Fixedsys", fill: "#fff", align: "center" });
             // Cogemos los cursores para gestionar la entrada
             this.cursor = game.input.keyboard.createCursorKeys();
         };
@@ -157,7 +169,10 @@ var GameModule;
             //Si els diamants es queden a 0 posi mes diamants
             if (this.DIAMANTS == 0) {
                 this.ROUND = this.ROUND + 1;
-                if (this.ROUND != 1) {
+                if (this.ROUND == 2) {
+                    this.DIAMANTS == 12;
+                }
+                else {
                     this.DIAMANTS == 55;
                 }
                 this.configGrourpDiamants();

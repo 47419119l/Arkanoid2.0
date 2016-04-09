@@ -5,23 +5,19 @@ module GameModule
     var game: Phaser.Game;
 
     class mainState extends Phaser.State {
+       textGameOver:Phaser.Text;
         puntuacioContador:Phaser.Text;
         videsContador:Phaser.Text;
         cursor: Phaser.CursorKeys;
         paddle:Phaser.Sprite;
         ball:Phaser.Sprite;
         elements:Phaser.Group;
-
-
         ESPAIH = 106;
         ESPAIV = 70;
-        VIDES = 3;
+        VIDES = 4;
         PUNTUACIO=0;
         DIAMANTS =16;
         ROUND=1;
-
-        // private paddle:Phaser.Sprite;
-
         preload():void {
             super.preload();
 
@@ -35,11 +31,11 @@ module GameModule
             //Inicio la física
             game.physics.startSystem(Phaser.Physics.ARCADE);
         }
-
         reset(){
             this.VIDES = 3;
             this.DIAMANTS=16;
             this.PUNTUACIO=0;
+            this.ROUND=1;
             this.game.state.restart();
         }
         ballMuerte():void{
@@ -117,21 +113,32 @@ module GameModule
                            var newElement = new Diamante(this.game, y * this.ESPAIH, x * this.ESPAIV + 50, color);
                            this.elements.add(newElement);
                        }
-                   }else{
-                       if (x == 0 && y == 0 || x == 0 && y == 1 || x == 0 && y ==7 || x == 0 && y == 8 ||
-                           x == 1 && y == 0 || x == 1 && y == 8 ||
-                           x == 4 && y == 0 || x == 4 && y == 8 ||
-                           x == 5 && y == 0 || x == 5 && y == 1 || x == 5 && y == 7|| x == 5 && y == 8 ||
-                           x == 6 && y == 0 || x == 6 && y == 1 || x ==6 && y == 7|| x == 6 && y == 8 ||
-                           x == 7 && y == 0 || x == 7 && y == 1 || x == 7 && y == 7|| x == 7 && y == 8 ||
-                           x == 8 && y == 0 || x == 8 && y == 1|| x == 8 && y == 2|| x == 8 && y ==6|| x == 8 && y == 7 || x == 8 && y == 8  ) {
-
-                       }else{
-                           color = 'elementYellow'
+                   }else if(this.ROUND==2){
+                       if(x == 1 && y == 2 || x == 1 && y == 5 ||
+                           x == 2 && y ==2 || x == 2 && y == 5 ||
+                           x == 3 && y == 2 || x == 3 && y == 5 ||
+                           x == 4 && y == 1 || x == 4 && y == 6 ||
+                           x == 5 && y == 2 || x == 5 && y == 5 ||
+                           x == 6 && y == 3 || x == 6 && y == 4 ){
+                           color = 'elementPurple'
                            var newElement = new Diamante(this.game, y * this.ESPAIH, x * this.ESPAIV + 50, color);
                            this.elements.add(newElement);
                        }
-                   }
+                   }else{
+                        if (x == 0 && y == 0 || x == 0 && y == 1 || x == 0 && y ==7 || x == 0 && y == 8 ||
+                            x == 1 && y == 0 || x == 1 && y == 8 ||
+                            x == 4 && y == 0 || x == 4 && y == 8 ||
+                            x == 5 && y == 0 || x == 5 && y == 1 || x == 5 && y == 7|| x == 5 && y == 8 ||
+                            x == 6 && y == 0 || x == 6 && y == 1 || x ==6 && y == 7|| x == 6 && y == 8 ||
+                            x == 7 && y == 0 || x == 7 && y == 1 || x == 7 && y == 7|| x == 7 && y == 8 ||
+                            x == 8 && y == 0 || x == 8 && y == 1|| x == 8 && y == 2|| x == 8 && y ==6|| x == 8 && y == 7 || x == 8 && y == 8  ) {
+
+                        }else{
+                            color = 'elementRed'
+                            var newElement = new Diamante(this.game, y * this.ESPAIH, x * this.ESPAIV + 50, color);
+                            this.elements.add(newElement);
+                        }
+                    }
 
                 }
             }
@@ -147,9 +154,9 @@ module GameModule
             this.configGrourpDiamants();
 
             //Contador vides
-            this.videsContador = this.game.add.text(20,10," Vides : " +this.VIDES, { font: "25px Arial", fill: "#fff", align: "center"});
+            this.videsContador = this.game.add.text(20,10," Vides : " +this.VIDES, { font: "25px Fixedsys", fill: "#fff", align: "center"});
             //Contador de punts
-            this.puntuacioContador = this.game.add.text(500,10," Puntuació : " +this.PUNTUACIO, { font: "25px Arial", fill: "#fff", align: "center"});
+            this.puntuacioContador = this.game.add.text(500,10," Puntuació : " +this.PUNTUACIO, { font: "25px Fixedsys", fill: "#fff", align: "center"});
 
 
             // Cogemos los cursores para gestionar la entrada
@@ -188,7 +195,9 @@ module GameModule
            //Si els diamants es queden a 0 posi mes diamants
             if(this.DIAMANTS==0){
                 this.ROUND=this.ROUND+1;
-                if(this.ROUND!=1){
+                if(this.ROUND==2){
+                    this.DIAMANTS==12;
+                }else{
                     this.DIAMANTS==55;
                 }
                 this.configGrourpDiamants();
